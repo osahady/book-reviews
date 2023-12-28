@@ -30,14 +30,55 @@ class Book extends Model
                     ->orderBy('reviews_count', 'desc');
     }
 
+    public function scopeLatestBooks(Builder $query) : Builder
+    {
+        return $query->withCount('reviews')
+                    ->withAvg('reviews', 'rating')
+                    ->latest();
+    }
+
 
 
     public function scopeHighestRated(Builder $query, $from = null, $to = null) : Builder
     {
         return $query->withAvg('reviews', 'rating')
-                    ->where(fn($q) => $this->dateFilter($q, $from, $to))
+                    ->where(fn(Builder $q) => $this->dateFilter($q, $from, $to))
                     ->orderBy('reviews_avg_rating', 'desc');
     }
+
+    public function scopeMinReviews(Builder $query, int $min) : Builder
+    {
+        return $query->having('reviews_count','>', $min);
+    }
+
+    public function scopePopularLastMonth(Builder $query) : Builder
+    {
+        return $query->popular(now()->subMonth(), now())
+                    ->highestRated(now()->subMonth(), now())
+                    ->minReviews(2);
+    }
+
+    public function scopePopularLast6Months(Builder $query) : Builder
+    {
+        return $query->popular(now()->subMonths(6), now())
+                    ->highestRated(now()->subMonths(6), now())
+                    ->minReviews(5);
+    }
+
+    public function scopeHighestRatedLastMonth(Builder $query) : Builder
+    {
+        return $query->highestRated(now()->subMonth(), now())
+                     ->popular(now()->subMonth(), now())
+                     ->minReviews(2);
+    }
+
+    public function scopeHighestRatedLast6Months(Builder $query) : Builder
+    {
+        return $query->highestRated(now()->subMonths(6), now())
+                     ->popular(now()->subMonths(6), now())
+                     ->minReviews(5);
+    }
+
 
     private function dateFilter(Builder $query, $from = null, $to = null)
     {
@@ -49,5 +90,6 @@ class Book extends Model
             $query->where('created_at', '<=', $to);
         }
         return $query;
-    }
+
+   }
 }
