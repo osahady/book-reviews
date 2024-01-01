@@ -25,9 +25,10 @@ class BookController extends Controller
             default => $books->latestBooks(),
         };
 
-        $books = $books->get();
+        // $books = cache()->remember('books: ' . $filter . $title, 3600
+        //     , fn() => $books->get());
 
-        // $books = Book::popular()->highestRated()->get();
+        $books = $books->get();
         return view('books.index', compact('books'));
     }
 
@@ -50,9 +51,11 @@ class BookController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Book $book)
+    public function show(int $id)
     {
-        //
+        $cacheKey = 'book: ' . $id;
+        $book = cache()->remember($cacheKey, 3600, fn() => Book::latestBooks()->findOrFail($id));
+        return view('books.show', ['book' => $book]);
     }
 
     /**

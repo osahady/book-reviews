@@ -22,7 +22,7 @@
     <div class="flex flex-wrap justify-between items-center">
 
         @foreach ($filters as $key => $label)
-        <a href="{{ route('books.index', [...request()->query(), 'filter' => $key]) }}" class="bg-gray-200 mb-8 text-slate-200 px-2 py-2 h-10 text-sm rounded-md hover:bg-slate-600 transition duration-150 ease-in-out {{ request('filter') === $key || ($key === '' && request('filter') === null ) ? 'font-bold bg-blue-100 text-blue-500' : '' }}">{{ $label }}</a>
+        <a href="{{ route('books.index', [...request()->query(), 'filter' => $key]) }}" class="bg-gray-200 mb-8 text-slate-900 px-2 py-2 h-10 text-sm rounded-md hover:bg-slate-300 transition duration-150 ease-in-out {{ request('filter') === $key || ($key === '' && request('filter') === null ) ? 'font-bold bg-blue-100 text-blue-500' : '' }}">{{ $label }}</a>
 
         @endforeach
     </div>
@@ -34,4 +34,6 @@
   @empty
     <x-reset-card link="{{ route('books.index') }}" />
   @endforelse
+
+
 </x-layout>

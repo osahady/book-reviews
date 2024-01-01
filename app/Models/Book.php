@@ -22,11 +22,15 @@ class Book extends Model
     {
         return $query->where('title', 'like', '%' . $title . '%');
     }
+        public function scopeWithPopular(Builder $query, $from = null, $to = null) : Builder
+    {
+        return $query->withCount('reviews')
+                    ->where(fn(Builder $q) => $this->dateFilter($q, $from, $to));
+    }
 
     public function scopePopular(Builder $query, $from = null, $to = null) : Builder
     {
-        return $query->withCount('reviews')
-                    ->where(fn(Builder $q) => $this->dateFilter($q, $from, $to))
+        return $query->withPopular($from, $to)
                     ->orderBy('reviews_count', 'desc');
     }
 
@@ -37,14 +41,20 @@ class Book extends Model
                     ->latest();
     }
 
-
-
-    public function scopeHighestRated(Builder $query, $from = null, $to = null) : Builder
+        public function scopeHighestRated(Builder $query, $from = null, $to = null) : Builder
     {
         return $query->withAvg('reviews', 'rating')
                     ->where(fn(Builder $q) => $this->dateFilter($q, $from, $to))
                     ->orderBy('reviews_avg_rating', 'desc');
     }
+
+
+    public function scopeWithHighestRated(Builder $query, $from = null, $to = null) : Builder
+    {
+        return $query->withAvg('reviews', 'rating')
+                    ->where(fn(Builder $q) => $this->dateFilter($q, $from, $to));
+    }
+
 
     public function scopeMinReviews(Builder $query, int $min) : Builder
     {
@@ -92,4 +102,20 @@ class Book extends Model
         return $query;
 
    }
+
+   protected static function booted() : void
+   {
+        static::updated(fn(Book $book) => cache()->forget('book: ' . $book->id));
+
+        static::deleted(fn(Book $book) => cache()->forget('book: ' . $book->id));
+
+        static::created( function(Book $book){
+            cache()->forget('books: popular_last_month' . $book->title);
+            cache()->forget('books: popular_last_6_months' . $book->title);
+            cache()->forget('books: highest_rated_last_month' . $book->title);
+            cache()->forget('books: highest_rated_last_6_months' . $book->title);
+            cache()->forget(''. $book->title .'');
+        });
+   }
+
 }
