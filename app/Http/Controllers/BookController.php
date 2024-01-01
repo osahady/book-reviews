@@ -28,7 +28,7 @@ class BookController extends Controller
         // $books = cache()->remember('books: ' . $filter . $title, 3600
         //     , fn() => $books->get());
 
-        $books = $books->get();
+        $books = $books->paginate(20);
         return view('books.index', compact('books'));
     }
 

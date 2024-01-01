@@ -35,5 +35,9 @@
     <x-reset-card link="{{ route('books.index') }}" />
   @endforelse
 
+    {{-- pagination --}}
+    <div class="mt-8">
+        {{ $books->links() }}
+    </div>
 
 </x-layout>
