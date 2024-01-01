@@ -7,6 +7,7 @@
     </div>
     <div class="p-6">
         <h1 class="text-xl font-semibold mb-2">{{ number_format( $book->reviews_avg_rating, 1) }}</h1>
+        <x-star-rating :rating="$book->reviews_avg_rating" />
         <p class="text-sm text-gray-600">Out of  {{$book->reviews_count}} {{Str::plural('review', $book->reviews_count) }} </p>
     </div>
 
